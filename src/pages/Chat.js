@@ -6,22 +6,18 @@ const { TextArea } = Input;
 
 export default function Chat() {
   const [state, ] = useContext(Context);
-  const [textMessage, setTextMessage] = useState("");
   const { socket, room } = state;
   const { isTyping, messages } = useSocket({ socket, room });
   const textAreaRef = useRef();
-
-  function leaveChat() {
-    socket.emit("leave", room);
-  }
+  const [textMessage, setTextMessage] = useState("");
 
   function sendMessage() {
     textAreaRef.current.blur();
-    socket.emit("message", { textMessage, room });
     messages.push({
       sender: "me",
-      textMessage
+      textMessage: textMessage.trim()
     });
+    socket.emit("message", { textMessage, room });
     setTextMessage("");
   }
 
@@ -29,7 +25,7 @@ export default function Chat() {
     <>
       <h1>CHAT</h1>
       { messages.map((msg, idx) => <Card key={idx} title={msg.sender !== "me" ? "Stranger" : "Me"} className={msg.sender === "me" ? "me" : "you"} bordered={true}>
-        <p>{msg.textMessage}</p>
+        <pre>{msg.textMessage}</pre>
       </Card>)}
       { isTyping && "Au clavier ..."}
       <TextArea
@@ -37,11 +33,11 @@ export default function Chat() {
         onChange={(e) => setTextMessage(e.target.value)}
         onFocus={() => socket.emit("isTyping", { isTyping: true, room })}
         onBlur={() => socket.emit("isTyping", { isTyping: false, room })}
-        onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
+        onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && textMessage.trim() && sendMessage()}
         value={textMessage} />
-      <Button type='primary' onClick={sendMessage}>Send</Button>
+      <Button type='primary' onClick={sendMessage} disabled={!textMessage.trim()}>Send</Button>
       <br />
-      <Button type='danger' onClick={leaveChat}>Leave chat</Button>
+      <Button type='danger' onClick={() => socket.emit("leave", room)}>Leave chat</Button>
     </>
   )
 }
