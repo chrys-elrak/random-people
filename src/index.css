@@ -11,3 +11,15 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.ant-card.me {
+  background-color: #3285f1;
+  color:#fff;
+  margin: 5px 0px 5px 0px;
+  width: 100%;
+}
+
+.ant-card.you {
+  width: 100%;
+  background-color: #e2f1ff;
+}
